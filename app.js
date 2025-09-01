@@ -57,9 +57,21 @@ function setupMeetupHistoryPage() {
 			const locName = locationsMap[data.locationId] || 'Unknown location';
 			li.className = 'meetup-item';
 			li.innerHTML = `
-				<div><strong>${locName}</strong> <span class="meetup-date">${data.date}</span></div>
+				<div style="display:flex;align-items:center;justify-content:space-between;">
+				  <div><strong>${locName}</strong> <span class="meetup-date">${data.date}</span></div>
+				  <button class="delete-btn" title="Delete meetup">&times;</button>
+				</div>
 				<div class="meetup-attendees">Attendees: ${data.attendees && data.attendees.length ? data.attendees.map(a => `<span>${a}</span>`).join(', ') : 'None'}</div>
 			`;
+			li.querySelector('.delete-btn').onclick = async () => {
+				if (confirm('Delete this meetup?')) {
+					try {
+						await db.collection('meetups').doc(doc.id).delete();
+					} catch (err) {
+						alert('Error deleting meetup: ' + err.message);
+					}
+				}
+			};
 			meetupsList.appendChild(li);
 		});
 	});
