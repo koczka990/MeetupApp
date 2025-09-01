@@ -71,6 +71,7 @@ function setupRandomizerPage() {
 	if (!pickBtn || !resultDiv) return;
 
 	let locations = [];
+	let lastMeetupLocationId = null;
 
 	// Listen for live updates to locations
 	db.collection('locations').onSnapshot(snapshot => {
@@ -85,14 +86,27 @@ function setupRandomizerPage() {
 		});
 	});
 
+	// Listen for the most recent meetup
+	db.collection('meetups').orderBy('date', 'desc').limit(1).onSnapshot(snapshot => {
+		lastMeetupLocationId = null;
+		snapshot.forEach(doc => {
+			const data = doc.data();
+			lastMeetupLocationId = data.locationId;
+		});
+	});
+
 	pickBtn.addEventListener('click', () => {
-		if (!locations.length) {
+		let filtered = locations;
+		if (lastMeetupLocationId && locations.length > 1) {
+			filtered = locations.filter(loc => loc.id !== lastMeetupLocationId);
+		}
+		if (!filtered.length) {
 			resultDiv.textContent = 'No locations available.';
 			return;
 		}
-		const idx = Math.floor(Math.random() * locations.length);
-		const loc = locations[idx];
-		resultDiv.innerHTML = `<strong>${loc.name}</strong>${loc.address ? ' <span style="color:#666">(' + loc.address + ')</span>' : ''}`;
+		const idx = Math.floor(Math.random() * filtered.length);
+		const loc = filtered[idx];
+		resultDiv.innerHTML = `<strong>${loc.name}</strong>${loc.address ? ' <span style=\"color:#666\">(' + loc.address + ')</span>' : ''}`;
 	});
 }
 // // Import the functions you need from the SDKs you need
