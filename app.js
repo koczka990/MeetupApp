@@ -132,10 +132,7 @@ window.initializeFirebase = initializeFirebase;
 
 // Optionally auto-initialize on load
 
-window.addEventListener('DOMContentLoaded', () => {
-	initializeFirebase();
-	setupLocationsPage();
-});
+
 
 function setupLocationsPage() {
 	const form = document.getElementById('add-location-form');
